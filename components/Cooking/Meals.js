@@ -20,7 +20,7 @@ const Meals = ({ meals, kitchens }) => {
     const { amount, level, cookReq } = meal;
     if (level >= 11) return 0;
     let amountNeeded = 0;
-    for (let i = 0; i < 11; i++) {
+    for (let i = level; i < 11; i++) {
       amountNeeded += getMealLevelCost(i);
     }
     amountNeeded -= amount;
