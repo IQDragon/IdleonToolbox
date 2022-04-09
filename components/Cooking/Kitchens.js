@@ -1,10 +1,11 @@
 import styled from 'styled-components'
 import { kFormatter, prefix } from "../../Utilities";
 import { LinearProgressWithLabel } from "../Common/commonStyles";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { notateNumber } from "../../parser/parserUtils";
+import Timer from "../Common/Timer";
 
-const Kitchens = ({ meals, spices, kitchens }) => {
+const Kitchens = ({ meals, spices, kitchens, lastUpdated }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -100,6 +101,12 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                 <div>Progress:</div>
                 <LinearProgressWithLabel barcolor={'#3196e1'} barbgcolor={'#ffffff'} value={percentOfCap}/>
                 {kFormatter(kitchen?.currentProgress)} / {kFormatter(recipeTime)}
+                <div>
+                  <span>Time to finish:&nbsp;</span>
+                  <Timer placeholder={<span style={{ color: '#51e406', fontWeight: 'bold' }}>Ready</span>}
+                         type={'countdown'} date={new Date().getTime() + (kitchen?.mealSpeed * 1000)}
+                         lastUpdated={lastUpdated}/>
+                </div>
               </div> : null}
               <div className={'kitchen-stats-wrapper'}>
                 <div>Kitchen Stats</div>

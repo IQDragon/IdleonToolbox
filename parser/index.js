@@ -1001,11 +1001,11 @@ const createCharactersData = (idleonData, characters, account) => {
     // ANVIL EXP
     const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
     const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
-    if (charIndex === 6) {
-      console.log('character?.food', character?.food)
-      const speedFromPots = getTotalStatFromEquipment(character?.food, 'Effect', 'MoveSpdBoosts');
-      console.log('speedFromPots', speedFromPots)
-    }
+    // if (charIndex === 6) {
+    //   console.log('character?.food', character?.food)
+    //   const speedFromPots = getTotalStatFromEquipment(character?.food, 'Effect', 'MoveSpdBoosts');
+    //   console.log('speedFromPots', speedFromPots)
+    // }
     const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
     const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Shaman');
     const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);

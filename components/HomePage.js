@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.13',
+      changes: [
+        {
+          title: 'Meals',
+          desc: [
+            'Added time to next level and diamond for meals.',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.12',
       changes: [
         {
