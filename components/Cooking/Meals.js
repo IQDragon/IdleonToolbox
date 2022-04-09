@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { cleanUnderscore, numberWithCommas, kFormatter, prefix } from "../../Utilities";
 import { useMemo } from "react";
+import { range } from 'lodash';
 
 const Meals = ({ meals, kitchens }) => {
   const totalMealSpeed = useMemo(() => kitchens?.reduce((sum, kitchen) => sum + kitchen.mealSpeed, 0))
@@ -10,6 +11,16 @@ const Meals = ({ meals, kitchens }) => {
     return baseMath * Math.pow(1.2 + 0.05 * level, level);
   }
 
+  const calcTimeTillDiamond = (meal) => {
+    const { amount, level, cookReq} = meal;
+    if (level >= 11) return 0;
+
+    const amountNeeded = range(level, 11).reduce((sum, lev) => sum + getMealLevelCost(lev)) - amount;
+    if (amountNeeded < 0) return 0;
+
+    return amountNeeded * cookReq / totalMealSpeed;
+  }
+
   return (
     <MealsStyle>
       {meals?.map((meal, index) => {
@@ -17,6 +28,7 @@ const Meals = ({ meals, kitchens }) => {
         const { name, amount, rawName, effect, level, baseStat, cookReq} = meal;
         const levelCost = getMealLevelCost(level);
         const timeTillNextLevel = amount >= levelCost ? '0' : ((levelCost - amount) * cookReq / totalMealSpeed);
+        const timeTillDiamond = calcTimeTillDiamond(meal);
 
         const divStyle = {
           height: '100%',
@@ -34,7 +46,7 @@ const Meals = ({ meals, kitchens }) => {
                 className={level === 0 ? '' : amount >= levelCost ? 'ok' : 'missing-mat'}>{numberWithCommas(parseInt(amount))}</span> / {numberWithCommas(parseInt(levelCost))}
             </div>
             <div>
-              Time till next level {kFormatter(timeTillNextLevel, 2)}hr
+              Next level {kFormatter(timeTillNextLevel, 2)}hr{timeTillDiamond > 0 ? ', diamond ' + kFormatter(timeTillDiamond, 2) + 'hr' : ''}
             </div>
           </div>
 
