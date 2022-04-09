@@ -50,7 +50,6 @@ import {
   getTotalCardBonusById,
   getTotalCoinCost,
   getTotalMonsterMatCost,
-  getTotalStatFromEquipment,
   getVialsBonusByEffect,
   isArenaBonusActive,
   keysMap,
@@ -673,15 +672,15 @@ const createAccountData = (idleonData, characters, serverVars) => {
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed', vialMultiplier);
     const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0, stampMultiplier);
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook', mealMultiplier);
-    const recipeSpeedBonusMath = (1 + recipeSpeedStamps / 100) * (1 + recipeSpeedMeals / 100);
     const fireSpeed = 5 *
       (1 + (isRichelin ? 1 : 0)) *
       Math.max(1, Math.pow(diamondChef, diamondMeals)) *
       (1 + fireLv / 10) *
       (1 + recipeSpeedVials / 100) *
-      recipeSpeedBonusMath *
+      (1 + recipeSpeedStamps / 100) *
+      (1 + recipeSpeedMeals / 100) *
       cardImpact *
-      (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+      (1 + kitchenEffMeals * Math.floor(totalKitchenUpgrades / 10) / 100);
 
     // New Recipe Luck
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;

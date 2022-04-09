@@ -1109,24 +1109,25 @@ export const notateNumber = (e, t) => {
 
 export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
   const possibleMeals = [];
-  // the sum of spice indexes is a possible meal.
-  const spices = spiceValues.split(' ').map((spiceIndex) => parseInt(spiceIndex));
-  const sum = valueOfSpices.reduce((sum, value) => sum + spices.indexOf(value), 0);
-  possibleMeals.push(sum);
-
   // Each spice value is also a possible meal.
   valueOfSpices.forEach(value => {
     if (!possibleMeals.includes(value)) {
       possibleMeals.push(value);
     }
   });
+  // the sum of spice indexes is a possible meal.
+  const spiceValuesArr = spiceValues.split(' ').map(num => parseFloat(num));
+  const sum = valueOfSpices.reduce((sum, value) => sum += spiceValuesArr.indexOf(value), 0);
+  if (!spiceValues.includes(sum)) {
+    possibleMeals.push(sum);
+  }
 
   // if we have 3 or more spices, add sum - 1.
-  if (valueOfSpices.length > 2 && !possibleMeals.includes(sum - 1)) {
+  if (valueOfSpices.length > 2 && !possibleMeals.includes(sum - 1) && !spiceValuesArr.includes(sum - 1)) {
     possibleMeals.push(sum - 1);
   }
   // if we have more than one spice, add sum + 1.
-  if (valueOfSpices.length > 1 && !possibleMeals.includes(sum + 1)) {
+  if (valueOfSpices.length > 1 && !possibleMeals.includes(sum + 1) && !spiceValuesArr.includes(sum + 1)) {
     possibleMeals.push(sum + 1);
   }
 

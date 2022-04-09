@@ -72,6 +72,7 @@ const Kitchens = ({ meals, spices, kitchens, lastUpdated }) => {
           const isRecipe = kitchen?.status >= 3;
           const recipeTime = getRecipeTime(kitchen?.possibleMeals);
           const percentOfCap = Math.round(kitchen?.currentProgress / recipeTime * 100);
+          const timeToFinish = (recipeTime - kitchen?.currentProgress) / kitchen.fireSpeed;
           return <div className={'kitchen'} key={`kitchen-${kitchenIndex}`}>
             <div className={'kitchen-name'}>Table #{kitchenIndex + 1}</div>
             <div className={'box'}>
@@ -104,7 +105,7 @@ const Kitchens = ({ meals, spices, kitchens, lastUpdated }) => {
                 <div>
                   <span>Time to finish:&nbsp;</span>
                   <Timer placeholder={<span style={{ color: '#51e406', fontWeight: 'bold' }}>Ready</span>}
-                         type={'countdown'} date={new Date().getTime() + (kitchen?.mealSpeed * 1000)}
+                         type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
                          lastUpdated={lastUpdated}/>
                 </div>
               </div> : null}
