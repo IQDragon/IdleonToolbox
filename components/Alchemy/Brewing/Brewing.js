@@ -2,31 +2,33 @@ import styled from 'styled-components'
 import { Checkbox, FormControlLabel, Grid, TextField } from "@material-ui/core";
 import { cleanUnderscore, pascalCase, prefix } from "../../../Utilities";
 import React, { useContext, useMemo, useState } from "react";
-import { calcBubbleMatCost, cauldrons } from "../../General/calculationHelper";
+import { calcBubbleMatCost, cauldrons, growth } from "../../General/calculationHelper";
 import { AppContext } from "../../Common/context";
 import Bubbles from "./Bubbles";
 import "../../Common/Tooltips/NumberTooltip";
 import NumberTooltip from "../../Common/Tooltips/NumberTooltip";
 
 const Brewing = ({ account }) => {
-  const { alchemy, achievements } = account;
+  const { alchemy, achievements, lab } = account;
   const { accountDisplay, alchemyGoals, setUserAlchemyGoals, setUserAccountDisplay } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
   const [bubble, setBubble] = useState(accountDisplay?.subView || 'power');
 
   const [bargainTag, setBargainTag] = useState(0);
+  const myFirstChemSet = useMemo(() => lab?.labBonuses.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active, [lab.vials]);
 
-  const calculateMaterialCost = (bubbleLv, baseCost, isLiquid, cauldronName) => {
+  const calculateMaterialCost = (bubbleLv, baseCost, isLiquid, cauldronName, bubbleIndex) => {
     const cauldronCostLvl = alchemy?.cauldrons?.[cauldronName]?.cost || 0;
     const undevelopedBubbleLv = alchemy?.bubbles?.kazam?.[6].level || 0;
     const barleyBrewLvl = alchemy?.vials?.[9]?.level || 0;
+    const multiBubble = alchemy?.bubbles?.[cauldronName]?.[16].level || 0;
     const lastBubbleLvl = alchemy?.bubbles?.[cauldronName]?.[14].level || 0;
     const classMultiplierLvl = classDiscount ? (alchemy?.bubbles?.[cauldronName]?.[1].level || 0) : 0;
     const shopBargainBought = bargainTag || 0;
     const smrtAchievement = achievements[108].completed;
-    return calcBubbleMatCost(bubbleLv, baseCost, isLiquid, cauldronCostLvl,
+    return calcBubbleMatCost(bubbleIndex, myFirstChemSet ? 2 : 1, bubbleLv, baseCost, isLiquid, cauldronCostLvl,
       undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
-      shopBargainBought, smrtAchievement);
+      shopBargainBought, smrtAchievement, multiBubble);
   }
 
   const handleGoalUpdate = (cauldronName, levels) => {

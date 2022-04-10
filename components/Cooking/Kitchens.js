@@ -1,10 +1,11 @@
 import styled from 'styled-components'
 import { kFormatter, prefix } from "../../Utilities";
 import { LinearProgressWithLabel } from "../Common/commonStyles";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { notateNumber } from "../../parser/parserUtils";
+import Timer from "../Common/Timer";
 
-const Kitchens = ({ meals, spices, kitchens }) => {
+const Kitchens = ({ meals, spices, kitchens, lastUpdated }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -71,6 +72,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
           const isRecipe = kitchen?.status >= 3;
           const recipeTime = getRecipeTime(kitchen?.possibleMeals);
           const percentOfCap = Math.round(kitchen?.currentProgress / recipeTime * 100);
+          const timeToFinish = (recipeTime - kitchen?.currentProgress) / kitchen.fireSpeed;
           return <div className={'kitchen'} key={`kitchen-${kitchenIndex}`}>
             <div className={'kitchen-name'}>Table #{kitchenIndex + 1}</div>
             <div className={'box'}>
@@ -100,6 +102,12 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                 <div>Progress:</div>
                 <LinearProgressWithLabel barcolor={'#3196e1'} barbgcolor={'#ffffff'} value={percentOfCap}/>
                 {kFormatter(kitchen?.currentProgress)} / {kFormatter(recipeTime)}
+                <div>
+                  <span>Time to finish:&nbsp;</span>
+                  <Timer placeholder={<span style={{ color: '#51e406', fontWeight: 'bold' }}>Ready</span>}
+                         type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
+                         lastUpdated={lastUpdated}/>
+                </div>
               </div> : null}
               <div className={'kitchen-stats-wrapper'}>
                 <div>Kitchen Stats</div>

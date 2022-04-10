@@ -31,14 +31,14 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
   const accumulateBubbleCost = (index, level, baseCost, isLiquid, cauldronName) => {
     const levelDiff = bubbleGoal?.[index] - level;
     if (levelDiff <= 0) {
-      return bubbleCost(level, baseCost, isLiquid, cauldronName);
+      return bubbleCost(level, baseCost, isLiquid, cauldronName, index);
     }
     const array = new Array(levelDiff || 0).fill(1);
     return array.reduce((res, _, levelInd) => {
-        const cost = bubbleCost(level + (levelInd === 0 ? 1 : levelInd), baseCost, isLiquid, cauldronName);
+        const cost = bubbleCost(level + (levelInd === 0 ? 1 : levelInd), baseCost, isLiquid, cauldronName, index);
         return res + cost;
       },
-      bubbleCost(level, baseCost, isLiquid, cauldronName)
+      bubbleCost(level, baseCost, isLiquid, cauldronName, index)
     );
   }
 

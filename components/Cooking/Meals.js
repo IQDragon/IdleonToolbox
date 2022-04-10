@@ -1,53 +1,90 @@
 import styled from 'styled-components'
-import { cleanUnderscore, numberWithCommas, kFormatter, prefix } from "../../Utilities";
-import { useMemo } from "react";
+import { cleanUnderscore, kFormatter, numberWithCommas, prefix } from "../../Utilities";
+import React, { useMemo } from "react";
+import InfoIcon from "@material-ui/icons/Info";
+import { notateNumber } from "../../parser/parserUtils";
 
 const Meals = ({ meals, kitchens }) => {
-  const totalMealSpeed = useMemo(() => kitchens?.reduce((sum, kitchen) => sum + kitchen.mealSpeed, 0))
+  const totalMealSpeed = useMemo(() => kitchens?.reduce((sum, kitchen) => sum + kitchen.mealSpeed, 0), kitchens);
 
   const getMealLevelCost = (level) => {
     const baseMath = 10 + (level + Math.pow(level, 2));
     return baseMath * Math.pow(1.2 + 0.05 * level, level);
   }
 
+  const calcTimeToNextLevel = (amountNeeded, cookReq, totalMealSpeed) => {
+    return amountNeeded * cookReq / totalMealSpeed;
+  }
+
+  const calcTimeTillDiamond = (meal) => {
+    const { amount, level, cookReq } = meal;
+    if (level >= 11) return 0;
+    let amountNeeded = 0;
+    for (let i = level; i < 11; i++) {
+      amountNeeded += getMealLevelCost(i);
+    }
+    amountNeeded -= amount;
+    if (amountNeeded < 0) return 0;
+    return calcTimeToNextLevel(amountNeeded, cookReq, totalMealSpeed);
+  }
+
   return (
     <MealsStyle>
-      {meals?.map((meal, index) => {
-        if (!meal) return null;
-        const { name, amount, rawName, effect, level, baseStat, cookReq} = meal;
-        const levelCost = getMealLevelCost(level);
-        const timeTillNextLevel = amount >= levelCost ? '0' : ((levelCost - amount) * cookReq / totalMealSpeed);
-
-        const divStyle = {
-          height: '100%',
-        };
-        return <div className={'meal'} key={`${name}-${index}`}>
-          <div className={'images'} style={divStyle}>
-            <img className={`food${level <= 0 ? ' missing' : ''}`} src={`${prefix}data/${rawName}.png`} alt=""/>
-            {level > 0 ? <img className='plate' src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
-          </div>
-          <div className={'meal-desc'}>
-            <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
-            <div className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
-            <div>
+      <div className="meals">
+        <div className={'disclaimer'}>
+          <InfoIcon style={{ marginRight: 10 }}/>
+          Next level is based on all kitchen cooking the same meal
+        </div>
+        {meals?.map((meal, index) => {
+          if (!meal) return null;
+          const { name, amount, rawName, effect, level, baseStat, cookReq } = meal;
+          const levelCost = getMealLevelCost(level);
+          const timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
+          const timeToDiamond = calcTimeTillDiamond(meal);
+          return <div className={'meal'} key={`${name}-${index}`}>
+            <div className={'images'}>
+              <img className={`food${level <= 0 ? ' missing' : ''}`} src={`${prefix}data/${rawName}.png`} alt=""/>
+              {level > 0 ? <img className='plate' src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
+            </div>
+            <div className={'meal-desc'}>
+              <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
+              <div
+                className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
+              <div>
               <span
                 className={level === 0 ? '' : amount >= levelCost ? 'ok' : 'missing-mat'}>{numberWithCommas(parseInt(amount))}</span> / {numberWithCommas(parseInt(levelCost))}
-            </div>
-            <div>
-              Time till next level {kFormatter(timeTillNextLevel, 2)}hr
+              </div>
+              {level > 0 ? <div>
+                <div>
+                  Next Level In: {kFormatter(timeTillNextLevel, 2)} hrs
+                </div>
+                {timeToDiamond > 0 ? <div>
+                  Diamond In: {notateNumber(timeToDiamond, 'Big')} hrs
+                </div> : null}
+
+              </div> : null}
             </div>
           </div>
-
-        </div>
-      })}
+        })}
+      </div>
     </MealsStyle>
   );
 };
 
 const MealsStyle = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr));
-  grid-gap: 10px;
+  .disclaimer {
+    display: flex;
+    align-items: center;
+    grid-column: 1 / 4;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .meals {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    grid-gap: 10px;
+  }
 
   .meal {
     display: flex;
