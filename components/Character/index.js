@@ -55,7 +55,7 @@ const Character = ({
                      lab,
                      lastUpdated
                    }) => {
-  const { strength, agility, wisdom, luck } = stats || {};
+  const { strength, agility, wisdom, luck, playerSpeed } = stats || {};
 
   const isOvertime = () => {
     const hasUnendingEnergy = prayers?.find(({ name }) => name === 'Unending_Energy');
@@ -83,6 +83,7 @@ const Character = ({
           <div>Agi: {agility}</div>
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
+          <div>Player Speed: {playerSpeed}%</div>
           <div className={isOvertime() ? 'overtime' : ''}>Afk Time: {!isAfk() ?
             <Timer date={afkTime} lastUpdated={lastUpdated}/> :
             <span style={{ color: '#51e406', fontWeight: 'bold' }}>Active</span>}</div>

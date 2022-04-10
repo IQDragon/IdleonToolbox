@@ -301,9 +301,9 @@ export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0, mult
   const reducedLevel = lvlDiff * stamp?.reqItemMultiplicationLevel / 10
   const multi = stampTree === 'misc' ? 1 : multiplier;
   if (skillLevel > 0 && reducedLevel < stamp?.level && stampTree === 'skills') {
-    return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2) ?? 0) * multi;
+    return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * multi;
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2) ?? 0) * multi;
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * multi;
 }
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
@@ -311,9 +311,9 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
   const talent = talentsObj?.find(({ name }) => name === talentName);
   if (!talent) return 0;
   if (yBonus) {
-    return growth(talent?.funcY, talent?.level, talent?.y1, talent?.y2) ?? 0
+    return growth(talent?.funcY, talent?.level, talent?.y1, talent?.y2, false) ?? 0
   }
-  return growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2) ?? 0;
+  return growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2, false) ?? 0;
 }
 
 export const createActiveBuffs = (activeBuffs, talents) => {
@@ -334,7 +334,7 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
 }
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
-  const saltLick = saltLicks?.find(({ rawName }) => rawName === saltIndex);
+  const saltLick = saltLicks?.[saltIndex];
   if (!saltLick || saltLick === 0) return 0;
   const bonus = saltLick.baseBonus * (saltLick.level ?? 0) ?? 0;
   if (shouldRound) return round(bonus) ?? 0;
@@ -592,11 +592,18 @@ export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect) =>
   return starSign?.find(({ effect }) => effect === starEffect)?.bonus ?? 0;
 }
 
+export const getStarSignByEffect = (equippedStarSigns, starEffect) => {
+  if (equippedStarSigns.length === 0) return 0;
+  const allBonuses = equippedStarSigns.flatMap(({ bonuses }) => bonuses);
+  return allBonuses?.reduce((sum, { effect, bonus }) => effect === starEffect ? sum + bonus : sum, 0);
+}
+
 export const getPostOfficeBonus = (postOffice, boxName, bonusIndex) => {
   const box = postOffice?.boxes?.find(({ name }) => name === boxName);
   if (!box) return 0;
-  const updatedLevel = bonusIndex === 0 ? box?.level : index === 1 ? box?.level - 25 : box?.level - 100;
-  return growth(box?.func, updatedLevel > 0 ? updatedLevel : 0, box?.x1, box?.x2) ?? 0;
+  const updatedLevel = bonusIndex === 0 ? box?.level : bonusIndex === 1 ? box?.level - 25 : box?.level - 100;
+  const upgrade = box?.upgrades?.[bonusIndex];
+  return growth(upgrade?.func, updatedLevel > 0 ? updatedLevel : 0, upgrade?.x1, upgrade?.x2, false) ?? 0;
 }
 
 export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0) => {
