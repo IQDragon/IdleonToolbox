@@ -868,7 +868,7 @@ const createCharactersData = (idleonData, characters, account) => {
     character.starSigns = starSignsObject
       .split(",")
       .map((starSign) => {
-        if (!starSign) return null;
+        if (!starSign || starSign === '_') return null;
         const silkrodeNanochipBonus = account?.lab?.playersChips?.[charIndex].find((chip) => chip.index === 15);
         const updatedBonuses = starSignByIndexMap?.[starSign]?.bonuses?.map((star) => ({
           ...star,
