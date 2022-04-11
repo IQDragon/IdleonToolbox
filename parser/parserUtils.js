@@ -277,33 +277,32 @@ export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonu
 
 // export const twice
 
-export const getVialsBonusByEffect = (vials, effectName, multiplier = 1) => {
+export const getVialsBonusByEffect = (vials, effectName) => {
   return vials?.reduce((sum, vial) => {
     const { func, level, x1, x2, desc } = vial;
     if (!desc.includes(effectName)) return sum;
-    return sum + ((growth(func, level, x1, x2) ?? 0) * multiplier);
+    return sum + (growth(func, level, x1, x2) ?? 0);
   }, 0);
 }
 
-export const getStampsBonusByEffect = (stamps, effectName, skillLevel = 0, multiplier) => {
+export const getStampsBonusByEffect = (stamps, effectName, skillLevel = 0) => {
   return Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
     const foundStamps = stampTree?.filter(({ effect }) => effect.includes(effectName));
-    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, skillLevel, multiplier), 0);
+    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, skillLevel), 0);
     return final + sum;
   }, 0);
 }
 
-export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0, multiplier = 1) => {
+export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
   const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;
   const lvlDiff = 3 + (normalLevel - 3) * Math.pow(skillLevel / (normalLevel - 3), 0.75)
   const reducedLevel = lvlDiff * stamp?.reqItemMultiplicationLevel / 10
-  const multi = stampTree === 'misc' ? 1 : multiplier;
   if (skillLevel > 0 && reducedLevel < stamp?.level && stampTree === 'skills') {
-    return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * multi;
+    return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * multi;
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
 }
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
@@ -330,7 +329,7 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
     funcY,
     y1,
     y2
-  } = {}) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2) : growth(funcY, level, y1, y2) : 0, 0) ?? 0;
+  } = {}) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2, false) : growth(funcY, level, y1, y2, false) : 0, 0) ?? 0;
 }
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
@@ -341,14 +340,14 @@ export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
   return bonus;
 }
 
-export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex, worldTour) => {
+export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex) => {
   const shrine = shrines?.[shrineIndex];
   if (shrine?.level === 0 || playerMapId !== shrine?.mapId) {
     return 0;
   }
   const playerWorld = Math.floor(playerMapId / 50);
   const shrineWorld = Math.floor(shrine / 50);
-  if (worldTour && playerWorld !== shrineWorld) {
+  if (shrine?.worldTour && playerWorld !== shrineWorld) {
     return 0;
   }
   const cardBonus = getEquippedCardBonus(cards, cardIndex) ?? 0;
@@ -369,8 +368,8 @@ export const getActiveBubbleBonus = (equippedBubbles, bubbleName) => {
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2) ?? 0;
 }
 
-export const getBubbleBonus = (cauldrons, cauldronName, bubbleName, round) => {
-  const bubble = cauldrons?.[cauldronName]?.find(({ rawName }) => rawName === bubbleName);
+export const getBubbleBonus = (cauldrons, cauldronName, bubName, round) => {
+  const bubble = cauldrons?.[cauldronName]?.find(({ bubbleName }) => bubbleName === bubName);
   if (!bubble) return 0;
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) ?? 0;
 }
@@ -378,7 +377,7 @@ export const getBubbleBonus = (cauldrons, cauldronName, bubbleName, round) => {
 export const getDungeonStatBonus = (dungeonStats, statName) => {
   const stat = dungeonStats?.find(({ effect }) => effect === statName);
   if (!stat) return 0;
-  return growth(stat?.func, stat?.level, stat?.x1, stat?.x2) ?? 0;
+  return growth(stat?.func, stat?.level, stat?.x1, stat?.x2, false) ?? 0;
 }
 
 export const getAllCapsBonus = (guildBonus, telekineticStorageBonus, shrineBonus, zergPrayer, ruckSackPrayer) => {
@@ -501,7 +500,7 @@ export const getGoldenFoodMulti = (
 export const getFamilyBonusBonus = (bonuses, bonusName, level) => {
   const bonus = bonuses?.find(({ name }) => name?.includes(bonusName));
   if (!bonus) return 0;
-  return growth(bonus?.func, Math.max(0, Math.round(level - bonus?.x3)), bonus?.x1, bonus?.x2);
+  return growth(bonus?.func, Math.max(0, Math.round(level - bonus?.x3)), bonus?.x1, bonus?.x2, false);
 }
 
 export const getGoldenFoodBonus = (goldenFoodMulti, amount, stack) => {

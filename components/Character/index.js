@@ -53,6 +53,7 @@ const Character = ({
                      nextPortal,
                      cooldowns,
                      lab,
+                     ladlesPerDay,
                      lastUpdated
                    }) => {
   const { strength, agility, wisdom, luck, playerSpeed } = stats || {};
@@ -84,6 +85,7 @@ const Character = ({
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
           <div>Player Speed: {playerSpeed}%</div>
+          <div>{afkTarget !== 'Cooking' ? 'Possible' : ''} Ladles: {ladlesPerDay}/day</div>
           <div className={isOvertime() ? 'overtime' : ''}>Afk Time: {!isAfk() ?
             <Timer date={afkTime} lastUpdated={lastUpdated}/> :
             <span style={{ color: '#51e406', fontWeight: 'bold' }}>Active</span>}</div>

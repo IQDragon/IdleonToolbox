@@ -37,7 +37,7 @@ const Meals = ({ meals, kitchens }) => {
         </div>
         {meals?.map((meal, index) => {
           if (!meal) return null;
-          const { name, amount, rawName, effect, level, baseStat, cookReq } = meal;
+          const { name, amount, rawName, effect, level, baseStat, cookReq, multiplier } = meal;
           const levelCost = getMealLevelCost(level);
           const timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
           const timeToDiamond = calcTimeTillDiamond(meal);
@@ -49,7 +49,7 @@ const Meals = ({ meals, kitchens }) => {
             <div className={'meal-desc'}>
               <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
               <div
-                className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
+                className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', kFormatter(level * baseStat * multiplier)))}</div>
               <div>
               <span
                 className={level === 0 ? '' : amount >= levelCost ? 'ok' : 'missing-mat'}>{numberWithCommas(parseInt(amount))}</span> / {numberWithCommas(parseInt(levelCost))}
