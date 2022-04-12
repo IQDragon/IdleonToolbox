@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.15',
+      changes: [
+        {
+          title: 'Characters',
+          desc: [
+            'Added ladles per hour per character',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.14',
       changes: [
         {
