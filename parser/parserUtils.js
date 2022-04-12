@@ -279,9 +279,9 @@ export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonu
 
 export const getVialsBonusByEffect = (vials, effectName) => {
   return vials?.reduce((sum, vial) => {
-    const { func, level, x1, x2, desc } = vial;
+    const { func, level, x1, x2, desc, multiplier = 1 } = vial;
     if (!desc.includes(effectName)) return sum;
-    return sum + (growth(func, level, x1, x2) ?? 0);
+    return sum + ((growth(func, level, x1, x2) ?? 0) * multiplier);
   }, 0);
 }
 

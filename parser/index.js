@@ -422,7 +422,9 @@ const createAccountData = (idleonData, characters, serverVars) => {
 
   account.refinery = {
     salts: saltsArray,
-    refinerySaltTaskLevel
+    refinerySaltTaskLevel,
+    timePastCombustion: refineryObject[0][1],
+    timePastSynthesis: refineryObject[0][2]
   }
 
   account.bundles = Object.entries(idleonData?.BundlesReceived).reduce((res, [bundleName, owned]) => owned ? [...res, {

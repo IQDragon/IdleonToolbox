@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.16',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added refinery cycle times',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.15',
       changes: [
         {

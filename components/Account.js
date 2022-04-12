@@ -64,9 +64,8 @@ const Account = () => {
                character={userData?.characters}/> : null}
       {accountDisplay?.view === 'saltLick' ? <SaltLick saltLick={userData?.account?.saltLicks}/> : null}
       {accountDisplay?.view === 'refinery' ?
-        <Refinery lab={userData?.account?.lab} refinery={userData?.account?.refinery}
-                  saltLicks={userData?.account?.saltLicks}
-                  vials={userData?.account?.alchemy?.vials} characters={userData?.characters}
+        <Refinery account={userData?.account}
+                  characters={userData?.characters}
                   lastUpdated={lastUpdated}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bundles' ? <GemShopBundles bundles={userData?.account?.bundles}/> : null}
