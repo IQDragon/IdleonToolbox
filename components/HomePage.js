@@ -14,6 +14,19 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.17',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added sigils (will add more info soon)',
+            'Added missing images.',
+            'Updated lab new bonuses',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.16',
       changes: [
         {

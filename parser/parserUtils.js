@@ -135,6 +135,7 @@ export const createSerializedData = (data, charNames) => {
     Refinery: tryToParse(data?.Refinery),
     Printer: tryToParse(data?.Print),
     CauldronBubbles: tryToParse(data?.CauldronBubbles),
+    CauldronP2W: tryToParse(data?.CauldronP2W),
     PrayersUnlocked: tryToParse(data?.PrayOwned),
     TimeAway: tryToParse(data?.TimeAway),
     GemsOwned: data?.GemsOwned,

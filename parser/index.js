@@ -93,6 +93,7 @@ import {
   saltLicks,
   shops,
   shrines,
+  sigils,
   starSignByIndexMap,
   starSigns,
   vials
@@ -606,16 +607,17 @@ const createAccountData = (idleonData, characters, serverVars) => {
           connectedPlayers = [...connectedPlayers, newPlayer];
         }
         const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+        const viralRangeBonus = (labBonusesList.find(bonus => bonus.index === 13)?.active ?? false) ? 50 : 0;
         const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.name === 'Pyrite_Rhombol').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
         const {
           resArr: bonuses,
           newConnection: newBonusConnection
-        } = checkConnection(labBonusesList, connectionRangeBonus, connectedPlayers?.[i], false);
+        } = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
         labBonusesList = bonuses;
         const {
           resArr: jewels,
           newConnection: newJewelConnection
-        } = checkConnection(jewelsList, connectionRangeBonus, connectedPlayers?.[i], true);
+        } = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
         jewelsList = jewels;
         foundNewConnection = !foundNewConnection ? newPlayerConnection || newBonusConnection || newJewelConnection : foundNewConnection;
       }
@@ -752,7 +754,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     const p = connectedPlayers?.find(({ playerId }) => playerId === index);
     return {
       ...player,
-      lineWidth: p?.lineWidth ?? 0
+      lineWidth: p?.lineWidth || player?.lineWidth || 0
     }
   })
 
@@ -796,6 +798,25 @@ const createAccountData = (idleonData, characters, serverVars) => {
     balls,
     goldBalls
   }
+  const sigilsRaw = idleonData?.CauldronP2W[4];
+  let sigilsList = [];
+  for (let i = 0; i < sigilsRaw.length; i++) {
+    const progress = sigilsRaw[i];
+    const unlocked = sigilsRaw[i + 1];
+    const sigilData = sigils?.[i];
+    if (sigilData) {
+      sigilsList = [
+        ...sigilsList,
+        {
+          ...(sigils?.[i] || {}),
+          unlocked: unlocked !== -1,
+          progress,
+        }
+      ]
+    }
+  }
+
+  account.sigils = sigilsList;
 
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);

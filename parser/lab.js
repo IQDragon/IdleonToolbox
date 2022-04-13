@@ -8,11 +8,11 @@ export const getDistance = (x1, y1, x2, y2) => {
   return 0.9604339 * Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) + 0.397824735 * Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }
 
-export const getRange = (connectionBonus, index, isJewel) => {
-  if (isJewel && index === 9) {
+export const getRange = (connectionBonus, viralRangeBonus, index, isJewel) => {
+  if ((!isJewel && index === 13) || (index === 9 && isJewel)) {
     return 80;
   }
-  return 80 * (1 + connectionBonus / 100);
+  return 80 * (1 + (connectionBonus + viralRangeBonus) / 100);
 }
 
 export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, meals, cards, gemItemsPurchased, arenaWave, waveReqs) => {
@@ -31,7 +31,7 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, m
     );
     return {
       ...character,
-      lineWidth
+      lineWidth: lineWidth
     };
   })
 }
@@ -52,12 +52,8 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
   const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
   const lineWidthCards = getCardBonusByEffect(cards, 'Line_Width_(Passive)');
-  if (conductiveMotherboardBonus) {
-    return Math.floor((baseLineWidth + 12) * (1 + (mealLinePctBonus + (conductiveMotherboardBonus) + (20 * petArenaBonus + bonusLineWidth)) / 100));
-  } else {
-    return Math.floor((baseLineWidth + (mealPxBonus + Math.min(lineWidthCards, 50)))
-      * (1 + ((mealLinePctBonus + 0 + (20 * petArenaBonus) + bonusLineWidth) / 100)));
-  }
+  return Math.floor((baseLineWidth + (mealPxBonus + Math.min(lineWidthCards, 50)))
+    * (1 + ((mealLinePctBonus + conductiveMotherboardBonus + (20 * petArenaBonus) + bonusLineWidth) / 100)));
 }
 
 export const getPrismPlayerConnection = (playersInTubes) => {
@@ -82,12 +78,11 @@ export const checkPlayerConnection = (playersInTubes, connectedPlayers, playerCo
   return null;
 }
 
-
 // Check connection for jewels / bonuses
-export const checkConnection = (array, connectionRangeBonus, playerCords, acquirable) => {
+export const checkConnection = (array, connectionRangeBonus, viralRangeBonus, playerCords, acquirable) => {
   return array?.reduce((res, object, index) => {
     let newConnection = false;
-    const range = getRange(connectionRangeBonus, index, acquirable);
+    const range = getRange(connectionRangeBonus, viralRangeBonus, index, acquirable);
     const distance = getDistance(playerCords.x, playerCords.y, object.x, object.y);
     const inRange = distance < range;
     if (inRange && !object.active && (!acquirable || acquirable && object.acquired)) {
