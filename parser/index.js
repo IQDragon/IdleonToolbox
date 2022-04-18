@@ -517,7 +517,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     ]
   }, []);
 
-  const spicesAvailable = idleonData?.Meals[3]?.filter((spiceAmount) => spiceAmount > 0).map((amount, index) => ({
+  const spicesAvailable = idleonData?.Meals?.[3]?.filter((spiceAmount) => spiceAmount > 0).map((amount, index) => ({
     amount,
     rawName: `CookingSpice${index}`
   }));
@@ -541,231 +541,234 @@ const createAccountData = (idleonData, characters, serverVars) => {
     arenaBonuses
   };
 
-  const [cords] = idleonData?.Lab;
-  const [chipRepo] = idleonData?.Lab.splice(15);
-  const [jewelsRaw] = idleonData?.Lab.splice(14);
-  const playerChipsRaw = idleonData?.Lab.slice(1, 10);
-  let playerCordsChunk = 2, playersCords = [];
-  for (let i = 0; i < cords.length; i += playerCordsChunk) {
-    const [x, y] = cords.slice(i, i + playerCordsChunk);
-    playersCords = [...playersCords, { x, y }];
-  }
-  let jewelsList = jewelsRaw?.map((jewel, index) => {
-    return {
-      ...(jewels?.[index] || {}),
-      acquired: jewel === 1,
-      rawName: `ConsoleJwl${index}`
+  if (idleonData?.Lab) {
+    const [cords] = idleonData?.Lab || [];
+    const [chipRepo] = idleonData?.Lab?.splice(15) || [];
+    const [jewelsRaw] = idleonData?.Lab?.splice(14) || [];
+    const playerChipsRaw = idleonData?.Lab?.slice(1, 10) || [];
+    let playerCordsChunk = 2, playersCords = [];
+    for (let i = 0; i < cords?.length; i += playerCordsChunk) {
+      const [x, y] = cords?.slice(i, i + playerCordsChunk);
+      playersCords = [...playersCords, { x, y }];
     }
-  }).filter(({ name }) => name);
+    let jewelsList = jewelsRaw?.map((jewel, index) => {
+      return {
+        ...(jewels?.[index] || {}),
+        acquired: jewel === 1,
+        rawName: `ConsoleJwl${index}`
+      }
+    }).filter(({ name }) => name);
 
-  const playersChips = playerChipsRaw?.map((pChips) => {
-    return pChips.map((chip) => {
-      if (chips?.[chip]) return { ...chips?.[chip], chipIndex: chip }
-      return chip;
+    const playersChips = playerChipsRaw?.map((pChips) => {
+      return pChips.map((chip) => {
+        if (chips?.[chip]) return { ...chips?.[chip], chipIndex: chip }
+        return chip;
+      });
     });
-  });
 
-  const chipList = JSON.parse(JSON.stringify(chips));
+    const chipList = JSON.parse(JSON.stringify(chips));
 
-  // const chipRepository = chipRepo?.map((chipCount, chipIndex) => {
-  //   if (chipIndex < chips.length) {
-  //     const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index ? 1 : 0), 0);
-  //     chipList[chipIndex].amount = chipCount - playerUsedCount;
-  //   }
-  // });
+    // const chipRepository = chipRepo?.map((chipCount, chipIndex) => {
+    //   if (chipIndex < chips.length) {
+    //     const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index ? 1 : 0), 0);
+    //     chipList[chipIndex].amount = chipCount - playerUsedCount;
+    //   }
+    // });
 
-  let playersInTubes = [...characters].filter((character, index) => character?.[`AFKtarget_${index}`] === "Laboratory")
-    // .sort((player1, player2) => player1.playerId > player2.playerId ? 1 : -1)
-    .map(character => ({
-      ...character,
-      x: playersCords?.[character?.playerId]?.x,
-      y: playersCords?.[character?.playerId]?.y
-    }));
+    let playersInTubes = [...characters].filter((character, index) => character?.[`AFKtarget_${index}`] === "Laboratory")
+      // .sort((player1, player2) => player1.playerId > player2.playerId ? 1 : -1)
+      .map(character => ({
+        ...character,
+        x: playersCords?.[character?.playerId]?.x,
+        y: playersCords?.[character?.playerId]?.y
+      }));
 
-  let foundNewConnection = true;
-  let counter = 0;
-  let labBonusesList = JSON.parse(JSON.stringify(labBonuses));
-  let connectedPlayers = [];
-  while (foundNewConnection) {
-    foundNewConnection = false;
-    counter += 1;
-    playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
+    let foundNewConnection = true;
+    let counter = 0;
+    let labBonusesList = JSON.parse(JSON.stringify(labBonuses));
+    let connectedPlayers = [];
+    while (foundNewConnection) {
+      foundNewConnection = false;
+      counter += 1;
+      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
 
-    if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
-      const prismPlayer = getPrismPlayerConnection(playersInTubes);
-      if (prismPlayer) {
-        connectedPlayers.push(prismPlayer);
-      }
-    }
-
-    for (let i = 0; i < playersInTubes.length; i++) {
-      let newPlayer, newPlayerConnection;
-      if (i < connectedPlayers.length) {
-        newPlayer = checkPlayerConnection(playersInTubes, connectedPlayers, connectedPlayers?.[i]);
-        if (newPlayer && !connectedPlayers.find((player) => player.playerId === newPlayer.playerId)) {
-          newPlayerConnection = true;
-          connectedPlayers = [...connectedPlayers, newPlayer];
+      if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
+        const prismPlayer = getPrismPlayerConnection(playersInTubes);
+        if (prismPlayer) {
+          connectedPlayers.push(prismPlayer);
         }
-        const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
-        const viralRangeBonus = (labBonusesList.find(bonus => bonus.index === 13)?.active ?? false) ? 50 : 0;
-        const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.name === 'Pyrite_Rhombol').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
-        const {
-          resArr: bonuses,
-          newConnection: newBonusConnection
-        } = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
-        labBonusesList = bonuses;
-        const {
-          resArr: jewels,
-          newConnection: newJewelConnection
-        } = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
-        jewelsList = jewels;
-        foundNewConnection = !foundNewConnection ? newPlayerConnection || newBonusConnection || newJewelConnection : foundNewConnection;
       }
-    }
 
-    playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
-  }
-
-  const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
-  if (jewelMultiplier > 1) {
-    jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: jewelMultiplier }));
-  }
-  const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
-  const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
-  if (stampMultiplier > 0) {
-    account.stamps = Object.entries(account.stamps).reduce((res, [stampCategory, stamps]) => {
-      let updatedStamps = stamps;
-      if (stampCategory !== 'misc') {
-        updatedStamps = stamps?.map((stamp) => ({ ...stamp, multiplier: stampMultiplier }));
+      for (let i = 0; i < playersInTubes.length; i++) {
+        let newPlayer, newPlayerConnection;
+        if (i < connectedPlayers.length) {
+          newPlayer = checkPlayerConnection(playersInTubes, connectedPlayers, connectedPlayers?.[i]);
+          if (newPlayer && !connectedPlayers.find((player) => player.playerId === newPlayer.playerId)) {
+            newPlayerConnection = true;
+            connectedPlayers = [...connectedPlayers, newPlayer];
+          }
+          const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+          const viralRangeBonus = (labBonusesList.find(bonus => bonus.index === 13)?.active ?? false) ? 50 : 0;
+          const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.name === 'Pyrite_Rhombol').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
+          const {
+            resArr: bonuses,
+            newConnection: newBonusConnection
+          } = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
+          labBonusesList = bonuses;
+          const {
+            resArr: jewels,
+            newConnection: newJewelConnection
+          } = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
+          jewelsList = jewels;
+          foundNewConnection = !foundNewConnection ? newPlayerConnection || newBonusConnection || newJewelConnection : foundNewConnection;
+        }
       }
-      return { ...res, [stampCategory]: updatedStamps };
-    }, {});
-  }
-  const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
-  if (vialMultiplier > 1) {
-    account.alchemy.vials = account?.alchemy?.vials?.map((vial) => ({ ...vial, multiplier: vialMultiplier }));
-  }
-  const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
-  account.meals = account?.meals?.map((meal) => ({ ...meal, multiplier: (1 + mealMultiplier / 100) }));
 
-  account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
-    const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
-    if (status <= 0) return null;
-
-    // Multipliers
-    // X2 from stamps (Certified stamp book) - Cooked_Meal_Stamp
-    // X2 from vials (My 1st chemistry set) - LONG_ISLAND_TEA
-    // jewel multiplier X1.5 (Spelunker Obol)
-
-    // jewel meal multiplier X1.24 (* jewel multiplier) (Black diamond rhinestone)
-    // jewel cooking multiplier X1 per 25 kitchen levels (* jewel multiplier) (Emerald Pyramite)
-    // jewel cooking speed - X2.25 (Amethyst_Rhinestone)
-    // all purple jewels active - X2.25
-    // diamond chef - cooking speed per diamond meal
-    // cabbage - cooking speed per 10 kitchen levels
-    // Cooking Speed meals - Egg, Corndog, Soda
-    // kitchen upgrade from gemshop X2
-    // troll card
-
-    const totalKitchenUpgrades = speedLv + fireLv + luckLv;
-    const cookingSpeedJewelMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Emerald_Pyramite').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
-    const cookingSpeedFromJewel = Math.floor(totalKitchenUpgrades / 25) * cookingSpeedJewelMultiplier;
-
-    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
-    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed'); // doesnt use vial multi
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed');
-    const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
-    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
-    const trollCard = account?.cards?.Troll; // Kitchen Eff card
-    const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
-    const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
-    let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
-    const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
-
-    const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
-    const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
-    const mealSpeed = 10 *
-      (1 + (isRichelin ? 2 : 0)) *
-      Math.max(1, Math.pow(diamondChef, diamondMeals)) *
-      (1 + speedLv / 10) *
-      (1 + cookingSpeedVials / 100) *
-      mealSpeedBonusMath *
-      cardImpact *
-      (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
-
-    // Fire Speed
-    const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
-    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
-    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
-    const fireSpeed = 5 *
-      (1 + (isRichelin ? 1 : 0)) *
-      Math.max(1, Math.pow(diamondChef, diamondMeals)) *
-      (1 + fireLv / 10) *
-      (1 + recipeSpeedVials / 100) *
-      (1 + recipeSpeedStamps / 100) *
-      (1 + recipeSpeedMeals / 100) *
-      cardImpact *
-      (1 + kitchenEffMeals * Math.floor(totalKitchenUpgrades / 10) / 100);
-
-    // New Recipe Luck
-    const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
-
-    // Spices Cost
-    const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
-    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchC');
-    const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
-    const baseMath = 1 /
-      ((1 + kitchenCostVials / 100) *
-        (1 + kitchenCostMeals / 100) *
-        (1 + (isRichelin ? 40 : 0) / 100) *
-        (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
-
-    const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
-    const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
-    const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
-
-    const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
-    const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
-    const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
-      index: foodIndex,
-      rawName: cookingMenu?.[foodIndex]?.rawName,
-      cookReq: cookingMenu?.[foodIndex]?.cookReq
-    }));
-
-    return {
-      status,
-      ...(cookingMenu?.[foodIndex] || {}),
-      luckLv,
-      fireLv,
-      speedLv,
-      currentProgress,
-      mealSpeed,
-      mealLuck,
-      fireSpeed,
-      speedCost,
-      fireCost,
-      luckCost,
-      ...(status === 3 ? { spices } : {}),
-      ...(status === 3 ? { possibleMeals } : {})
+      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
     }
-  }).filter((kitchen) => kitchen);
 
-  playersCords = playersCords?.map((player, index) => {
-    const p = connectedPlayers?.find(({ playerId }) => playerId === index);
-    return {
-      ...player,
-      lineWidth: p?.lineWidth || player?.lineWidth || 0
+    const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+    if (jewelMultiplier > 1) {
+      jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: jewelMultiplier }));
     }
-  })
+    const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
+    const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
+    if (stampMultiplier > 0) {
+      account.stamps = Object.entries(account.stamps).reduce((res, [stampCategory, stamps]) => {
+        let updatedStamps = stamps;
+        if (stampCategory !== 'misc') {
+          updatedStamps = stamps?.map((stamp) => ({ ...stamp, multiplier: stampMultiplier }));
+        }
+        return { ...res, [stampCategory]: updatedStamps };
+      }, {});
+    }
+    const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
+    if (vialMultiplier > 1) {
+      account.alchemy.vials = account?.alchemy?.vials?.map((vial) => ({ ...vial, multiplier: vialMultiplier }));
+    }
+    const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
+    account.meals = account?.meals?.map((meal) => ({ ...meal, multiplier: (1 + mealMultiplier / 100) }));
 
-  account.lab = {
-    playersCords,
-    playersChips,
-    connectedPlayers,
-    jewels: jewelsList,
-    chips: chipList,
-    labBonuses: labBonusesList
-  };
+    account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
+      const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
+      if (status <= 0) return null;
+
+      // Multipliers
+      // X2 from stamps (Certified stamp book) - Cooked_Meal_Stamp
+      // X2 from vials (My 1st chemistry set) - LONG_ISLAND_TEA
+      // jewel multiplier X1.5 (Spelunker Obol)
+
+      // jewel meal multiplier X1.24 (* jewel multiplier) (Black diamond rhinestone)
+      // jewel cooking multiplier X1 per 25 kitchen levels (* jewel multiplier) (Emerald Pyramite)
+      // jewel cooking speed - X2.25 (Amethyst_Rhinestone)
+      // all purple jewels active - X2.25
+      // diamond chef - cooking speed per diamond meal
+      // cabbage - cooking speed per 10 kitchen levels
+      // Cooking Speed meals - Egg, Corndog, Soda
+      // kitchen upgrade from gemshop X2
+      // troll card
+
+      const totalKitchenUpgrades = speedLv + fireLv + luckLv;
+      const cookingSpeedJewelMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Emerald_Pyramite').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
+      const cookingSpeedFromJewel = Math.floor(totalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 1);
+
+      const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
+      const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed'); // doesnt use vial multi
+      const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed');
+      const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
+      const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
+      const trollCard = account?.cards?.Troll; // Kitchen Eff card
+      const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
+      const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
+      let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
+      const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
+
+      const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
+      const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
+      const mealSpeed = 10 *
+        (1 + (isRichelin ? 2 : 0)) *
+        Math.max(1, Math.pow(diamondChef, diamondMeals)) *
+        (1 + speedLv / 10) *
+        (1 + cookingSpeedVials / 100) *
+        mealSpeedBonusMath *
+        cardImpact *
+        (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+
+      // Fire Speed
+      const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
+      const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
+      const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
+      const fireSpeed = 5 *
+        (1 + (isRichelin ? 1 : 0)) *
+        Math.max(1, Math.pow(diamondChef, diamondMeals)) *
+        (1 + fireLv / 10) *
+        (1 + recipeSpeedVials / 100) *
+        (1 + recipeSpeedStamps / 100) *
+        (1 + recipeSpeedMeals / 100) *
+        cardImpact *
+        (1 + kitchenEffMeals * Math.floor(totalKitchenUpgrades / 10) / 100);
+
+      // New Recipe Luck
+      const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
+
+      // Spices Cost
+      const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
+      const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchC');
+      const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
+      const baseMath = 1 /
+        ((1 + kitchenCostVials / 100) *
+          (1 + kitchenCostMeals / 100) *
+          (1 + (isRichelin ? 40 : 0) / 100) *
+          (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
+
+      const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
+      const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
+      const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
+
+      const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
+      const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
+      const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
+        index: foodIndex,
+        rawName: cookingMenu?.[foodIndex]?.rawName,
+        cookReq: cookingMenu?.[foodIndex]?.cookReq
+      }));
+
+      return {
+        status,
+        ...(cookingMenu?.[foodIndex] || {}),
+        luckLv,
+        fireLv,
+        speedLv,
+        currentProgress,
+        mealSpeed,
+        mealLuck,
+        fireSpeed,
+        speedCost,
+        fireCost,
+        luckCost,
+        ...(status === 3 ? { spices } : {}),
+        ...(status === 3 ? { possibleMeals } : {})
+      }
+    }).filter((kitchen) => kitchen);
+
+    playersCords = playersCords?.map((player, index) => {
+      const p = connectedPlayers?.find(({ playerId }) => playerId === index);
+      return {
+        ...player,
+        lineWidth: p?.lineWidth || player?.lineWidth || 0
+      }
+    })
+    account.lab = {
+      playersCords,
+      playersChips,
+      connectedPlayers,
+      jewels: jewelsList,
+      chips: chipList,
+      labBonuses: labBonusesList
+    };
+  } else {
+    account.lab = {}
+  }
 
 
   account.prayers = idleonData?.PrayersUnlocked?.reduce((res, prayerLevel, prayerIndex) => {
@@ -1301,9 +1304,8 @@ const createCharactersData = (idleonData, characters, account) => {
     const foodBonus = getPlayerFoodBonus(character, account?.statues, account?.stamps);
     const speedBonusFromPotions = speedFromPots * foodBonus;
     character.stats.playerSpeed = getPlayerSpeedBonus(speedBonusFromPotions, character, account?.lab?.playersChips?.[charIndex], account?.statues, account?.saltLicks, account?.stamps);
+
     const crystalShrineBonus = getShrineBonus(account?.shrines, 6, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9');
-    // const crystallinStamp = account?.stamps?.misc?.find(({ rawName }) => rawName === 'StampC3');
-    // const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
     const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0);
     const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
     const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;

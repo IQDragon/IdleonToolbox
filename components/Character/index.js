@@ -71,7 +71,7 @@ const Character = ({
   }
 
   const worshipProgress = worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100;
-  const wiredInBonus = lab.labBonuses.find((bonus) => bonus.name === 'Wired_In')?.active;
+  const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const labBonusActive = afkTarget === 'Laboratory' && wiredInBonus;
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-information-container'}>

@@ -63,7 +63,7 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
     finalSpeed = Math.min(2, Math.floor(100 * ((finalSpeed) + tipToeQuickness / 100)) / 100)
   } else {
     const saltLickBonus = getSaltLickBonus(saltLicks, 7);
-    const groundedMotherboard = playerChips.find((chip) => chip.index === 15)?.baseVal ?? 0;
+    const groundedMotherboard = playerChips?.find((chip) => chip.index === 15)?.baseVal ?? 0;
     finalSpeed = Math.min(1.75, Math.floor(100 * (finalSpeed + (saltLickBonus + groundedMotherboard + tipToeQuickness) / 100)) / 100)
   }
   // 2 < (finalSpeed) ? (s = b.engine.getGameAttribute("DummyNumbersStatManager"),
@@ -81,7 +81,7 @@ export const getAfkGain = (character, skillName, bribes, arcadeShop, dungeonUpgr
       guildAfkGains = getGuildBonusBonus(guildBonuses, 7);
     }
     const cardSet = character?.cards?.cardSet?.rawName === 'CardSet7' ? character?.cards?.cardSet?.bonus : 0;
-    const conductiveProcessor = playerChips.find((chip) => chip.index === 8)?.baseVal ?? 0;
+    const conductiveProcessor = playerChips?.find((chip) => chip.index === 8)?.baseVal ?? 0;
     const equipmentAfkEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[24]), 0);
     const equipmentShrineEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[59]), 0);
     const zergRushogen = getPrayerBonusAndCurse(character?.prayers, 'Zerg_Rushogen')?.bonus;
@@ -133,9 +133,9 @@ export const allProwess = (character, meals, bubbles) => {
 
 export const getAllBaseSkillEff = (character, playerChips, jewels) => {
   const baseAllEffBox = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 1);
-  const galvanicMotherboard = playerChips.find((chip) => chip.index === 11)?.baseVal ?? 0;
+  const galvanicMotherboard = playerChips?.find((chip) => chip.index === 11)?.baseVal ?? 0;
   const superSource = getTalentBonus(character?.starTalents, null, 'SUPERSOURCE');
-  const emeraldNavetteBonus = jewels.filter(jewel => jewel.active && jewel.name === 'Emerald_Navette').reduce((sum, jewel) => sum += (jewel.bonus * jewel.multiplier), 0);
+  const emeraldNavetteBonus = jewels?.filter(jewel => jewel.active && jewel.name === 'Emerald_Navette').reduce((sum, jewel) => sum += (jewel.bonus * jewel.multiplier), 0);
   return (baseAllEffBox) + galvanicMotherboard + (superSource + emeraldNavetteBonus);
 }
 
@@ -145,7 +145,7 @@ export const getAllEff = (character, meals, playerChips, cards, guildBonuses, ch
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   const equipmentEffEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[48]), 0);
   const mealEff = getMealsBonusByEffectOrStat(meals, null, 'Seff');
-  const groundedMotherboard = playerChips.find((chip) => chip.index === 11)?.baseVal ?? 0;
+  const groundedMotherboard = playerChips?.find((chip) => chip.index === 11)?.baseVal ?? 0;
   const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B');
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet2' ? character?.cards?.cardSet?.bonus : 0;
   const skilledDimwit = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.bonus;

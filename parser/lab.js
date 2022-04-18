@@ -1,7 +1,3 @@
-// Lab
-// const prismPlayer = getPrismPlayerConnection(playersCords, playersInTubes, playersLineWidth);
-// console.log('prismPlayer', prismPlayer);
-
 import { getCardBonusByEffect, getMealsBonusByEffectOrStat, isArenaBonusActive } from "./parserUtils";
 
 export const getDistance = (x1, y1, x2, y2) => {
