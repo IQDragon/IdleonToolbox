@@ -6,13 +6,14 @@ const Sigils = ({ sigils }) => {
     <SigilList>
       {sigils?.map((sigil, index) => {
         if (index > 20) return null;
-        const { name, effect, unlockCost, boostBonus, unlockBonus } = sigil;
+        const { name, effect, unlocked, unlockCost, boostBonus, unlockBonus } = sigil;
         return <Sigil key={`${name}-${index}`}>
-          <img className={'icon'} src={`${prefix}data/aSiga${index}.png`} alt=""/>
+          <img className={'icon'} src={`${prefix}data/aSig${unlocked === 1 ? 'b' : 'a'}${index}.png`} alt=""/>
           <div className={'text'}>
             <div className={'name'}>{cleanUnderscore(name)}</div>
-            <div><span className={'bold'}>Effect:</span> {cleanUnderscore(effect.replace(/{/g, unlockBonus))}</div>
-            <div><span className={'bold'}>Boost Bonus:</span> {kFormatter(boostBonus, 2)}</div>
+            <div><span
+              className={'bold'}>Effect:</span> {cleanUnderscore(effect.replace(/{/g, unlocked === 1 ? boostBonus : unlockBonus))}
+            </div>
             <div><span className={'bold'}>Unlock Cost:</span> {kFormatter(unlockCost, 2)}</div>
           </div>
         </Sigil>

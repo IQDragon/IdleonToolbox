@@ -812,8 +812,9 @@ const createAccountData = (idleonData, characters, serverVars) => {
         ...sigilsList,
         {
           ...(sigils?.[i] || {}),
-          unlocked: unlocked !== -1,
+          unlocked,
           progress,
+          bonus: unlocked === 1 ? sigilsList?.boostBonus : unlocked === 0 ? sigilsList?.unlockBonus : 0
         }
       ]
     }

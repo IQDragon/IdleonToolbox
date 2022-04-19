@@ -12,12 +12,13 @@ import { getVialsBonusByEffect } from "../../parser/parserUtils";
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
 const Refinery = ({ characters, lastUpdated, account }) => {
-  const { lab, alchemy, refinery, saltLicks } = account;
+  const { lab, alchemy, refinery, saltLicks, sigils } = account;
   const { salts, refinerySaltTaskLevel } = refinery || {};
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level) : 0;
   const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
+  const sigilRefinerySpeed = sigils?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
 
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
@@ -55,12 +56,12 @@ const Refinery = ({ characters, lastUpdated, account }) => {
     const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
     const combustion = {
       name: "Combustion",
-      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),
       timePast: refinery?.timePastCombustion + timePassed
     };
     const synthesis = {
       name: "Synthesis",
-      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),
       timePast: refinery?.timePastSynthesis + timePassed
     }
     setRefineryCycles([combustion, synthesis]);
@@ -71,7 +72,6 @@ const Refinery = ({ characters, lastUpdated, account }) => {
     // Cycles per day = (24 * 60 * 60 / ((900 || 3600) / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const cycleByType = index <= 2 ? 900 : 3600;
-    const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
     const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (redMaltVial + saltLickUpgrade) / 100))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
     return new Date().getTime() + (timeLeft * 3600 * 1000);
