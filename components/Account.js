@@ -24,6 +24,7 @@ import Achievements from "./Achievements";
 import Quests from "./Quests/Quests";
 import ShopStock from "./ShopStock";
 import ArcadeShop from "./World2/ArcadeShop";
+import Sigils from "./World2/Sigils";
 
 const Account = () => {
   const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
@@ -44,6 +45,7 @@ const Account = () => {
                 alchemy={userData?.account?.alchemy}
                 bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bubbles' ? <Brewing account={userData?.account}/> : null}
+      {accountDisplay?.view === 'sigils' ? <Sigils sigils={userData?.account?.sigils}/> : null}
       {accountDisplay?.view === 'vials' ?
         <Vials lab={userData?.account?.lab} vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'arcadeShop' ?
@@ -64,9 +66,8 @@ const Account = () => {
                character={userData?.characters}/> : null}
       {accountDisplay?.view === 'saltLick' ? <SaltLick saltLick={userData?.account?.saltLicks}/> : null}
       {accountDisplay?.view === 'refinery' ?
-        <Refinery lab={userData?.account?.lab} refinery={userData?.account?.refinery}
-                  saltLicks={userData?.account?.saltLicks}
-                  vials={userData?.account?.alchemy?.vials} characters={userData?.characters}
+        <Refinery account={userData?.account}
+                  characters={userData?.characters}
                   lastUpdated={lastUpdated}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bundles' ? <GemShopBundles bundles={userData?.account?.bundles}/> : null}

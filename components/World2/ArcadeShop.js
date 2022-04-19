@@ -44,7 +44,7 @@ const ArcadeShop = ({ labBonuses, stamps, arcade = {} }) => {
                    alt=""/>
             </div>
             <div className={'desc'}>
-              <div>Effect: {eff}</div>
+              <div style={{fontWeight: 'bold'}}>Effect: {eff}</div>
               {level !== 100 ? <div>Lv: {level} / 100</div> :
                 <div className={'done'}>MAXED</div>}
               <div>Cost: {kFormatter(cost, 2)}</div>

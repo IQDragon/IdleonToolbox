@@ -24,6 +24,7 @@ const worldsData = {
       { label: 'bubbles', icon: 'aBrewOptionA0' },
       { label: 'vials', icon: 'aVials1' },
       { label: 'arcadeShop', icon: 'PachiBall1' },
+      { label: 'sigils', icon: 'LabBonus12' },
     ]
   },
   'World 3': {

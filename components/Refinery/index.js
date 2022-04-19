@@ -7,14 +7,24 @@ import InfoIcon from '@material-ui/icons/Info';
 import Timer from "../Common/Timer";
 import WarningIcon from '@material-ui/icons/Warning';
 import NumberTooltip from "../Common/Tooltips/NumberTooltip";
+import { getVialsBonusByEffect } from "../../parser/parserUtils";
 
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
-const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated, lab }) => {
+const Refinery = ({ characters, lastUpdated, account }) => {
+  const { lab, alchemy, refinery, saltLicks, sigils } = account;
   const { salts, refinerySaltTaskLevel } = refinery || {};
+  const vials = alchemy?.vials;
+  const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
+  const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level) : 0;
+  const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
+  const sigilRefinerySpeed = sigils?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
+
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
   const [squiresCooldown, setSquiresCooldown] = useState([]);
+  const [refineryCycles, setRefineryCycles] = useState([]);
+
 
   useEffect(() => {
     const squires = characters?.filter((character) => character?.class === 'Squire');
@@ -43,17 +53,26 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated, lab }) 
     }, { cycles: 0, cooldowns: [] });
     setSquiresCycles(squiresDataTemp?.cycles);
     setSquiresCooldown(squiresDataTemp?.cooldowns);
+    const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
+    const combustion = {
+      name: "Combustion",
+      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),
+      timePast: refinery?.timePastCombustion + timePassed
+    };
+    const synthesis = {
+      name: "Synthesis",
+      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),
+      timePast: refinery?.timePastSynthesis + timePassed
+    }
+    setRefineryCycles([combustion, synthesis]);
   }, [lastUpdated]);
 
 
   const calcTimeToRankUp = (rank, powerCap, refined, index) => {
     // Cycles per day = (24 * 60 * 60 / ((900 || 3600) / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
-    const redMaltVial = vials?.[25] ? (growth(vials?.[25]?.func, vials?.[25]?.level, vials?.[25]?.x1, vials?.[25]?.x2) / 100) : 0;
-    const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level / 100) : 0;
     const cycleByType = index <= 2 ? 900 : 3600;
-    const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
+    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (redMaltVial + saltLickUpgrade) / 100))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
@@ -102,6 +121,25 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated, lab }) 
               <InfoIcon/>
             </Tooltip>
           </div>
+          <div className={'refinery'}>
+            {refineryCycles?.map((cycle, index) => {
+              const { name, time, timePast } = cycle;
+              const minutes = Math.floor(time / 60);
+              const seconds = time % 60;
+              const nextCycle = new Date().getTime() + ((time - timePast) * 1000)
+              const startDate = new Date().getTime() + (time * 1000);
+              return <div key={`${name}-${index}`}>
+                <div>
+                  <img src={`${prefix}data/RefTabs${index + 1}.png`} alt=""/>
+
+                </div>
+                <span>Next Cycle In:&nbsp;</span>
+                <Timer type={'countdown'} loop={true} startDate={startDate} date={nextCycle} lastUpdated={lastUpdated}/>
+                <div>Max cycle time: {minutes}m:{seconds}s</div>
+                <div>Cycles: {kFormatter(3600 / time, 2)}/hr</div>
+              </div>
+            })}</div>
+
         </div>
         {salts?.map(({ saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage }, saltIndex) => {
           const rankUp = powerCap === refined;
@@ -193,6 +231,16 @@ const RefineryStyle = styled.div`
 
   .bold {
     font-weight: bold;
+  }
+
+  .refinery {
+    display: flex;
+    margin: 15px 0 25px 0;
+    gap: 30px;
+
+    .name {
+      font-weight: bold;
+    }
   }
 
   .squires {

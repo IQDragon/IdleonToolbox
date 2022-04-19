@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { getDuration } from "../../../parser/parserUtils";
 import { isPast } from "date-fns";
 
-const Timer = ({ date, lastUpdated, type, pause, placeholder }) => {
+const Timer = ({ date, startDate, lastUpdated, type, pause, placeholder, loop }) => {
   const [time, setTime] = useState();
   const [localType, setLocalType] = useState(type);
 
@@ -39,6 +39,11 @@ const Timer = ({ date, lastUpdated, type, pause, placeholder }) => {
   }
   const tickDown = () => {
     let { days, hours, minutes, seconds } = time;
+    if ((days === 0 && hours === 0 && minutes === 0 && seconds === 0) && loop) {
+      let duration = getDuration(new Date().getTime(), startDate);
+      console.log('duration', duration)
+      return setTime({ ...duration });
+    }
     seconds -= 1;
     if (seconds === -1) {
       seconds = 59;
