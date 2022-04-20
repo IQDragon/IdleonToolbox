@@ -6,7 +6,7 @@ const Looty = ({ items }) => {
   return <LootyWrapper>
     {items?.map(({ name, rawName }, index) => (
       <NumberTooltip title={cleanUnderscore(name)} key={rawName + index}>
-        <img height={50} width={50}  src={`${prefix}data/${rawName}.png`} alt={''} />
+        <img height={50} width={50} src={`${prefix}data/${rawName}.png`} alt={''}/>
       </NumberTooltip>))}
   </LootyWrapper>;
 };
@@ -16,7 +16,7 @@ const LootyWrapper = styled.div`
   flex-wrap: wrap;
   padding: 15px;
   gap: 10px;
-  
+
   img {
     margin: 0 auto;
     object-fit: contain;

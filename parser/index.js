@@ -670,7 +670,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
 
       const totalKitchenUpgrades = speedLv + fireLv + luckLv;
       const cookingSpeedJewelMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Emerald_Pyramite').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
-      const cookingSpeedFromJewel = Math.floor(totalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 1);
+      // const cookingSpeedFromJewel = Math.floor(totalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 1);
 
       const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
       const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed'); // doesnt use vial multi
@@ -683,7 +683,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
       let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
       const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
 
-      const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
+      const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedJewelMultiplier)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
       const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
       const mealSpeed = 10 *
         (1 + (isRichelin ? 2 : 0)) *
