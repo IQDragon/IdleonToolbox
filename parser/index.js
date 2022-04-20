@@ -802,16 +802,17 @@ const createAccountData = (idleonData, characters, serverVars) => {
     goldBalls
   }
   const sigilsRaw = idleonData?.CauldronP2W[4];
+  console.log('sigilsRaw', sigilsRaw)
   let sigilsList = [];
-  for (let i = 0; i < sigilsRaw.length; i++) {
-    const progress = sigilsRaw[i];
-    const unlocked = sigilsRaw[i + 1];
-    const sigilData = sigils?.[i];
+  for (let i = 0, j = sigilsRaw.length; i < j; i += 2) {
+    const [progress, unlocked] = sigilsRaw.slice(i, i + 2);
+    const sigilData = sigils?.[i / 2];
+    console.log('unlocked', unlocked)
     if (sigilData) {
       sigilsList = [
         ...sigilsList,
         {
-          ...(sigils?.[i] || {}),
+          ...(sigilData),
           unlocked,
           progress,
           bonus: unlocked === 1 ? sigilsList?.boostBonus : unlocked === 0 ? sigilsList?.unlockBonus : 0
