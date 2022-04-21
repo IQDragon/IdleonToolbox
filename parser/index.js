@@ -681,7 +681,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
       const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
       const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
       let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
-      const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
+      const isRichelin = kitchenIndex < account?.gemItemsPurchased?.find((value, index) => index === 120);
 
       const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedJewelMultiplier)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
       const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
