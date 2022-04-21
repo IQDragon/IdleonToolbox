@@ -683,7 +683,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
       const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
       const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff', mealMultiplier);
       const trollCard = account?.cards?.Troll; // Kitchen Eff card
-      const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
+      const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
       const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
       let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
       const isRichelin = kitchenIndex < account?.gemItemsPurchased?.find((value, index) => index === 120);
