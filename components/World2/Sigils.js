@@ -9,11 +9,11 @@ const Sigils = ({ sigils }) => {
       {sigils?.map((sigil, index) => {
         if (index > 20) return null;
         const { name, effect, unlocked, unlockCost, boostBonus, unlockBonus } = sigil;
-        return <Sigil key={`${name}-${index}`}>
+        return <Sigil maxLevel={unlocked === 1} key={`${name}-${index}`}>
           <div style={{ position: 'relative' }}>
             {unlocked >= 0 ?
-              <CheckCircleIcon style={{ position: 'absolute', top: -10, left: -10, color: '#23bb23' }}/> : null}
-            <img className={'icon'} src={`${prefix}data/aSig${unlocked === 1 ? 'b' : 'a'}${index}.png`} alt=""/>
+              <CheckCircleIcon style={{ position: 'absolute', top: -10, left: -10, color: '#23bb23', zIndex: 1 }}/> : null}
+            <img className={'icon'} src={`${prefix}data/aSiga${index}.png`} alt=""/>
           </div>
 
           <div className={'text'}>
@@ -45,6 +45,7 @@ const Sigil = styled.div`
 
   .icon {
     object-fit: contain;
+    filter: hue-rotate(${({ maxLevel }) => maxLevel ? '200deg' : '0deg'});
   }
 
   .text {
