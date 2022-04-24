@@ -538,7 +538,7 @@ export const getAchievementStatus = (achievements, achievementIndex) => {
     case 122:
       return 20;
     default:
-      return 1;
+      return achievements?.[achievementIndex]?.completed ? 1 : 0;
   }
 }
 

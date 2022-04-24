@@ -590,7 +590,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     while (foundNewConnection) {
       foundNewConnection = false;
       counter += 1;
-      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
+      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, idleonData?.Tasks?.[2]?.[3]?.[4], account.gemItemsPurchased, arenaWave, waveReqs);
 
       if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
         const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -600,7 +600,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
       }
 
       for (let i = 0; i < playersInTubes.length; i++) {
-        let newPlayer, newPlayerConnection;
+        let newPlayer, newPlayerConnection = false;
         if (i < connectedPlayers.length) {
           newPlayer = checkPlayerConnection(playersInTubes, connectedPlayers, connectedPlayers?.[i]);
           if (newPlayer && !connectedPlayers.find((player) => player.playerId === newPlayer.playerId)) {
@@ -610,21 +610,23 @@ const createAccountData = (idleonData, characters, serverVars) => {
           const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
           const viralRangeBonus = (labBonusesList.find(bonus => bonus.index === 13)?.active ?? false) ? 50 : 0;
           const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.name === 'Pyrite_Rhombol').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
-          const {
-            resArr: bonuses,
-            newConnection: newBonusConnection
-          } = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
-          labBonusesList = bonuses;
-          const {
-            resArr: jewels,
-            newConnection: newJewelConnection
-          } = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
-          jewelsList = jewels;
-          foundNewConnection = !foundNewConnection ? newPlayerConnection || newBonusConnection || newJewelConnection : foundNewConnection;
+          let labBonuses = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
+          labBonusesList = labBonuses.resArr;
+          let jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
+          jewelsList = jewels.resArr;
+
+          if (jewelsList?.[16]?.acquired) {
+            jewelsList[16].active = true;
+            playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, idleonData?.Tasks?.[2]?.[3]?.[4], account.gemItemsPurchased, arenaWave, waveReqs);
+            jewelsList[16].active = false;
+          }
+          labBonuses = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
+          labBonusesList = labBonuses.resArr;
+          jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
+          jewelsList = jewels.resArr;
+          foundNewConnection = !foundNewConnection ? newPlayerConnection || labBonuses?.newConnection || jewels?.newConnection : foundNewConnection;
         }
       }
-
-      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
     }
 
     const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
@@ -649,7 +651,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
     account.meals = account?.meals?.map((meal) => ({ ...meal, multiplier: (1 + mealMultiplier / 100) }));
     const globalKitchenUpgrades = idleonData?.Cooking?.reduce((sum, table) => {
-      const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
+      const [speedLv, fireLv, luckLv] = table.slice(6, 9);
       return sum + speedLv + fireLv + luckLv
     }, 0);
     account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
@@ -687,17 +689,20 @@ const createAccountData = (idleonData, characters, serverVars) => {
       const isRichelin = kitchenIndex < account?.gemItemsPurchased?.find((value, index) => index === 120);
 
       const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
-      const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
+      const mealSpeedCardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1)
+        + (20 * getAchievementStatus(account?.achievements, 225) +
+          10 * getAchievementStatus(account?.achievements, 224)), 100) / 100
       const mealSpeed = 10 *
         (1 + (isRichelin ? 2 : 0)) *
         Math.max(1, Math.pow(diamondChef, diamondMeals)) *
         (1 + speedLv / 10) *
         (1 + cookingSpeedVials / 100) *
         mealSpeedBonusMath *
-        cardImpact *
+        mealSpeedCardImpact *
         (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
       // Fire Speed
+      const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
       const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
       const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
       const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
@@ -755,7 +760,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     }).filter((kitchen) => kitchen);
 
     playersCords = playersCords?.map((player, index) => {
-      const p = connectedPlayers?.find(({ playerId }) => playerId === index);
+      const p = playersInTubes?.find(({ playerId }) => playerId === index);
       return {
         ...player,
         lineWidth: p?.lineWidth || player?.lineWidth || 0
