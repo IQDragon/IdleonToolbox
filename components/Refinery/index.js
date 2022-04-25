@@ -54,7 +54,7 @@ const Refinery = ({ characters, lastUpdated, account }) => {
     setSquiresCycles(squiresDataTemp?.cycles);
     setSquiresCooldown(squiresDataTemp?.cooldowns);
     const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
-    console.log('sigilRefinerySpeed', sigils)
+
     const combustion = {
       name: "Combustion",
       time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),

@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.19',
+      changes: [
+        {
+          title: 'Achievements',
+          desc: [
+            'Added world 4 achievements'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.18',
       changes: [
         {
