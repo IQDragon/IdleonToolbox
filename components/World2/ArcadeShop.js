@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
-import { getStampBonus } from "../../parser/parserUtils";
+import { getStampBonus, notateNumber } from "../../parser/parserUtils";
 
 const ArcadeShop = ({ labBonuses, stamps, arcade = {} }) => {
   const { shop, balls, goldBalls } = arcade;
@@ -34,7 +34,7 @@ const ArcadeShop = ({ labBonuses, stamps, arcade = {} }) => {
       <div className="shop">
         {shop?.map((upgrade, index) => {
           const { level, effect, active, iconName, bonus } = upgrade;
-          const eff = cleanUnderscore(effect.replace('{', bonus));
+          const eff = cleanUnderscore(effect.replace('{', notateNumber(bonus, 'Small')));
           const cost = getCost(level);
           const costToMax = getCostToMax(level);
           return <div className={'upgrade'} key={`${iconName}-${index}`}>
@@ -44,7 +44,7 @@ const ArcadeShop = ({ labBonuses, stamps, arcade = {} }) => {
                    alt=""/>
             </div>
             <div className={'desc'}>
-              <div style={{fontWeight: 'bold'}}>Effect: {eff}</div>
+              <div style={{ fontWeight: 'bold' }}>Effect: {eff}</div>
               {level !== 100 ? <div>Lv: {level} / 100</div> :
                 <div className={'done'}>MAXED</div>}
               <div>Cost: {kFormatter(cost, 2)}</div>
