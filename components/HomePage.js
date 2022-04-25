@@ -14,6 +14,19 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.18',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Fixed a bug with sigils bonus',
+            'Fixed refinery cycle time',
+            'Fixed world tour calculation',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.17',
       changes: [
         {

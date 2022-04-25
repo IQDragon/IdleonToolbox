@@ -343,12 +343,12 @@ export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
 
 export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex) => {
   const shrine = shrines?.[shrineIndex];
-  if (shrine?.level === 0 || playerMapId !== shrine?.mapId) {
-    return 0;
-  }
   const playerWorld = Math.floor(playerMapId / 50);
   const shrineWorld = Math.floor(shrine / 50);
-  if (shrine?.worldTour && playerWorld !== shrineWorld) {
+  const shrineInTown = shrine?.mapId % 50 === 0;
+  const notSameMap = playerMapId !== shrine?.mapId;
+  const worldTourApplicable = shrine?.worldTour && shrineInTown && playerWorld === shrineWorld;
+  if (shrine?.level === 0 || (notSameMap && !worldTourApplicable)) {
     return 0;
   }
   const cardBonus = getEquippedCardBonus(cards, cardIndex) ?? 0;

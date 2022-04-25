@@ -821,7 +821,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
           ...(sigilData),
           unlocked,
           progress,
-          bonus: unlocked === 1 ? sigilsList?.boostBonus : unlocked === 0 ? sigilsList?.unlockBonus : 0
+          bonus: unlocked === 1 ? sigilData?.boostBonus : unlocked === 0 ? sigilData?.unlockBonus : 0
         }
       ]
     }
@@ -1059,7 +1059,7 @@ const createCharactersData = (idleonData, characters, account) => {
       nextCoinUpgrade: getCoinCost(pointsFromCoins, anvilCostReduction, true),
     };
 
-    const worldTour = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'World_Tour')?.active
+    const worldTour = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Shrine_World_Tour')?.active
     account.shrines = account?.shrines?.map((shrine) => ({ ...shrine, worldTour }));
     // ANVIL EXP
     const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
