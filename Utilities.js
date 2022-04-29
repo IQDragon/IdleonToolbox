@@ -227,7 +227,8 @@ export const screens = {
 export const worlds = {
   0: 'Blunder Hills',
   1: 'Yum Yum Desert',
-  2: 'Frostbite Tundra'
+  2: 'Frostbite Tundra',
+  4: 'Hyperion Nebula'
 }
 export const classColors = {
   Archer: "#51e406",
