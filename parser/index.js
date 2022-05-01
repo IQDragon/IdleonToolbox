@@ -991,6 +991,7 @@ const createCharactersData = (idleonData, characters, account) => {
       .map((card) => ({
         cardName: cards?.[card]?.displayName,
         stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
+        bonus: calcCardBonus(card),
         ...cards?.[card]
       }))
       .filter((_, ind) => ind < 8); //cardEquipMap
@@ -1313,6 +1314,13 @@ const createCharactersData = (idleonData, characters, account) => {
     const speedBonusFromPotions = speedFromPots * foodBonus;
     character.stats.playerSpeed = getPlayerSpeedBonus(speedBonusFromPotions, character, account?.lab?.playersChips?.[charIndex], account?.statues, account?.saltLicks, account?.stamps);
 
+    const omegaNanochipBonus = account?.lab?.playersChips?.[charIndex].find((chip) => chip.index === 20);
+    const omegaMotherboardChipBonus = account?.lab?.playersChips?.[charIndex].find((chip) => chip.index === 21);
+    character.cards.equippedCards = character?.cards?.equippedCards?.map((card, index) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus)) ? ({
+      ...card,
+      chipBoost: 2
+    }) : card);
+
     const crystalShrineBonus = getShrineBonus(account?.shrines, 6, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9');
     const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0);
     const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
@@ -1320,12 +1328,12 @@ const createCharactersData = (idleonData, characters, account) => {
     const demonGenie = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'G4');
     const demonGenieBonus = demonGenie ? calcCardBonus(demonGenie) : 0;
     const crystals4DaysTalent = character?.starTalents?.orderedTalents?.find(({ name }) => name === 'CRYSTALS_4_DAYYS');
-    const crystals4DaysBonus = crystals4DaysTalent ? growth(crystals4DaysTalent?.funcX, crystals4DaysTalent?.level, crystals4DaysTalent?.x1, crystals4DaysTalent?.x2) : 0;
+    const crystals4DaysBonus = crystals4DaysTalent ? growth(crystals4DaysTalent?.funcX, crystals4DaysTalent?.level, crystals4DaysTalent?.x1, crystals4DaysTalent?.x2, false) : 0;
     const cmonOutCrystalsTalent = character?.talents?.[1]?.orderedTalents?.find(({ name }) => name === 'CMON_OUT_CRYSTALS');
-    const cmonOutCrystalsBonus = cmonOutCrystalsTalent ? growth(cmonOutCrystalsTalent?.funcX, cmonOutCrystalsTalent?.level, cmonOutCrystalsTalent?.x1, cmonOutCrystalsTalent?.x2) : 0;
+    const cmonOutCrystalsBonus = cmonOutCrystalsTalent ? growth(cmonOutCrystalsTalent?.funcX, cmonOutCrystalsTalent?.level, cmonOutCrystalsTalent?.x1, cmonOutCrystalsTalent?.x2, false) : 0;
     const nonPredatoryBox = character?.postOffice?.boxes?.find(({ name }) => name === 'Non_Predatory_Loot_Box');
     const nonPredatoryBoxCrystalUpgrade = nonPredatoryBox?.upgrades?.[2]
-    const nonPredatoryBoxBonus = growth(nonPredatoryBoxCrystalUpgrade?.func, nonPredatoryBox?.level > 0 ? nonPredatoryBox?.level - 100 : 0, nonPredatoryBoxCrystalUpgrade?.x1, nonPredatoryBoxCrystalUpgrade?.x2);
+    const nonPredatoryBoxBonus = growth(nonPredatoryBoxCrystalUpgrade?.func, nonPredatoryBox?.level > 0 ? nonPredatoryBox?.level - 100 : 0, nonPredatoryBoxCrystalUpgrade?.x1, nonPredatoryBoxCrystalUpgrade?.x2, false);
 
     character.crystalSpawnChance = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
       * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100);

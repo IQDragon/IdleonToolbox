@@ -19,9 +19,8 @@ const EquippedCards = ({ cards }) => {
         </CardTooltip>
       </div> : null}
       {cards?.equippedCards?.map((card, index) => {
-        const { cardName, cardIndex, stars } = card;
+        const { cardName, cardIndex, stars, bonus} = card;
         const cleanCardName = cardName?.split("(", 2)[0].trim().replace(/ /, '_') || '';
-        const bonus = calcCardBonus(card);
         return cardName && cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
             {stars > 0 ?
               <img title={cardName} className='border' src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
