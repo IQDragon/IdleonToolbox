@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.20',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Updated to patch 1.56'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.19',
       changes: [
         {

@@ -24,6 +24,7 @@ export const constantBags = [
   "InvBag108",
   "InvBag109",
   "InvBag110",
+  "InvBag111"
 ];
 export const round = (num) => {
   return Math.round((num + Number.EPSILON) * 100) / 100;

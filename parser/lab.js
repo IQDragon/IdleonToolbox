@@ -6,7 +6,7 @@ export const getDistance = (x1, y1, x2, y2) => {
 }
 
 export const getRange = (connectionBonus, viralRangeBonus, index, isJewel) => {
-  if ((!isJewel && index === 13) || (index === 9 && isJewel)) {
+  if ((!isJewel && (index === 13 || index === 8)) || (index === 9 && isJewel)) {
     return 80;
   }
   return 80 * (1 + (connectionBonus + viralRangeBonus) / 100);
