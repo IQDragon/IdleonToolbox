@@ -42,7 +42,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const { acquired, x, y, bonus } = jewels[5];
   if (acquired) {
     if (getDistance(x, y, playerCords.x, playerCords.y) < 150) {
-      baseLineWidth *= 1.25;
+      baseLineWidth *= 1 + (bonus * jewelMultiplier / 100);
     }
   }
   const bonusLineWidth = soupedTube ? 30 : 0;
@@ -84,10 +84,6 @@ export const checkConnection = (array, connectionRangeBonus, viralRangeBonus, pl
     const range = getRange(connectionRangeBonus, viralRangeBonus, index, acquirable);
     const distance = getDistance(playerCords.x, playerCords.y, object.x, object.y);
     const inRange = distance < range;
-    if (playerCords?.name === 'BSponge' && object?.name === 'Amethyst_Rhinestone') {
-      console.log('hey')
-    }
-
     if (inRange && !object.active && (!acquirable || acquirable && object.acquired)) {
       object.active = true;
       newConnection = true;

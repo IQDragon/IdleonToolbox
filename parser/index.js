@@ -568,15 +568,14 @@ const createAccountData = (idleonData, characters, serverVars) => {
 
     const chipList = JSON.parse(JSON.stringify(chips));
 
-    // const chipRepository = chipRepo?.map((chipCount, chipIndex) => {
-    //   if (chipIndex < chips.length) {
-    //     const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index ? 1 : 0), 0);
-    //     chipList[chipIndex].amount = chipCount - playerUsedCount;
-    //   }
-    // });
+    chipRepo?.map((chipCount, chipIndex) => {
+      if (chipIndex < chips.length) {
+        const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index ? 1 : 0), 0);
+        chipList[chipIndex].amount = chipCount - playerUsedCount;
+      }
+    });
 
     let playersInTubes = [...characters].filter((character, index) => character?.[`AFKtarget_${index}`] === "Laboratory")
-      // .sort((player1, player2) => player1.playerId > player2.playerId ? 1 : -1)
       .map(character => ({
         ...character,
         x: playersCords?.[character?.playerId]?.x,
@@ -615,7 +614,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
           let jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
           jewelsList = jewels.resArr;
 
-          if (jewelsList?.[16]?.acquired) {
+          if (jewelsList?.[16]?.acquired && !jewelsList?.[16].active) {
             jewelsList[16].active = true;
             playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, idleonData?.Tasks?.[2]?.[3]?.[4], account.gemItemsPurchased, arenaWave, waveReqs);
             jewelsList[16].active = false;
@@ -628,7 +627,6 @@ const createAccountData = (idleonData, characters, serverVars) => {
         }
       }
     }
-
     const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
     if (jewelMultiplier > 1) {
       jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: jewelMultiplier }));
