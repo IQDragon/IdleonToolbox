@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.22',
+      changes: [
+        {
+          title: 'Alchemy',
+          desc: [
+            'Bug fix - fixed bubble cost for kazam (yellow) cauldron',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.21',
       changes: [
         {
