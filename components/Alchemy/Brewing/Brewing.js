@@ -21,7 +21,7 @@ const Brewing = ({ account }) => {
     const cauldronCostLvl = alchemy?.cauldrons?.[cauldronName]?.cost || 0;
     const undevelopedBubbleLv = alchemy?.bubbles?.kazam?.[6].level || 0;
     const barleyBrewLvl = alchemy?.vials?.[9]?.level || 0;
-    const multiBubble = alchemy?.bubbles?.[cauldronName]?.[16]?.level || 0;
+    const multiBubble = cauldronName !== 'kazam' ? alchemy?.bubbles?.[cauldronName]?.[16]?.level || 0 : 0;
     const lastBubbleLvl = alchemy?.bubbles?.[cauldronName]?.[14]?.level || 0;
     const classMultiplierLvl = classDiscount ? (alchemy?.bubbles?.[cauldronName]?.[1]?.level || 0) : 0;
     const shopBargainBought = bargainTag || 0;
