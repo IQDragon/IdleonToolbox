@@ -106,6 +106,7 @@ export const findQuantityOwned = (items, itemName) => {
     };
   }, { amount: 0, owner: [] });
 }
+
 export const splitTime = (numberOfHours) => {
   const days = Math.floor(numberOfHours / 24);
   const remainder = numberOfHours % 24;
@@ -113,6 +114,7 @@ export const splitTime = (numberOfHours) => {
   const minutes = Math.floor(60 * (remainder - hours));
   return `${days}d:${hours}h:${minutes}m`;
 }
+
 export const constellationIndexes = (str) => {
   const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8 }
   return str?.split('')?.map((char) => indexes?.[char]).sort((a, b) => a - b).join(',');

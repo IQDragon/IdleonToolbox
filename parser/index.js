@@ -96,6 +96,7 @@ import {
   sigils,
   starSignByIndexMap,
   starSigns,
+  tasks,
   vials
 } from "../data/website-data";
 import { growth } from "../components/General/calculationHelper";
@@ -582,6 +583,8 @@ const createAccountData = (idleonData, characters, serverVars) => {
         y: playersCords?.[character?.playerId]?.y
       }));
 
+    const calculatedTaskPixelWidth = (idleonData?.Tasks?.[2]?.[3]?.[4] ?? 0) * tasks?.[3]?.[4]?.bonusPerLevel;
+
     let foundNewConnection = true;
     let counter = 0;
     let labBonusesList = JSON.parse(JSON.stringify(labBonuses));
@@ -589,7 +592,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     while (foundNewConnection) {
       foundNewConnection = false;
       counter += 1;
-      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, idleonData?.Tasks?.[2]?.[3]?.[4], account.gemItemsPurchased, arenaWave, waveReqs);
+      playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
 
       if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
         const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -609,19 +612,19 @@ const createAccountData = (idleonData, characters, serverVars) => {
           const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
           const viralRangeBonus = (labBonusesList.find(bonus => bonus.index === 13)?.active ?? false) ? 50 : 0;
           const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.name === 'Pyrite_Rhombol').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
-          let labBonuses = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
+          let labBonuses = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, calculatedTaskPixelWidth, connectedPlayers?.[i], false);
           labBonusesList = labBonuses.resArr;
-          let jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
+          let jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, calculatedTaskPixelWidth, connectedPlayers?.[i], true);
           jewelsList = jewels.resArr;
 
           if (jewelsList?.[16]?.acquired && !jewelsList?.[16].active) {
             jewelsList[16].active = true;
-            playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, idleonData?.Tasks?.[2]?.[3]?.[4], account.gemItemsPurchased, arenaWave, waveReqs);
+            playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
             jewelsList[16].active = false;
           }
-          labBonuses = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], false);
+          labBonuses = checkConnection(labBonusesList, connectionRangeBonus, viralRangeBonus, calculatedTaskPixelWidth, connectedPlayers?.[i], false);
           labBonusesList = labBonuses.resArr;
-          jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, connectedPlayers?.[i], true);
+          jewels = checkConnection(jewelsList, connectionRangeBonus, viralRangeBonus, calculatedTaskPixelWidth, connectedPlayers?.[i], true);
           jewelsList = jewels.resArr;
           foundNewConnection = !foundNewConnection ? newPlayerConnection || labBonuses?.newConnection || jewels?.newConnection : foundNewConnection;
         }
