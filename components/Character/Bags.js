@@ -5,9 +5,11 @@ import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 
 const Bags = ({ bags, capBags }) => {
   const [invBags, setInvBags] = useState();
+
   useEffect(() => {
     setInvBags(bags.reduce((res, { rawName, ...rest }) => ({ ...res, [rawName]: { ...rest } }), {}));
   }, []);
+
   return (
     <BagsStyled>
       {invBags && constantBags?.map((bagName, index) => {

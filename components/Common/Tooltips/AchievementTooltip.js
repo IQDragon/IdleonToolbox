@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Tooltip } from "@material-ui/core";
 import { cleanUnderscore, prefix } from "../../../Utilities";
 
-const AchievementTooltip = ({ desc, name, rewards, rawName, children }) => {
+const AchievementTooltip = ({ desc, name, rewards, currentQuantity, quantity, rawName, children }) => {
   return (
     <AchievementTooltipStyle
       interactive
@@ -18,6 +18,9 @@ const AchievementTooltip = ({ desc, name, rewards, rawName, children }) => {
           <div className={'sub-title'}>Rewards:</div>
           {cleanUnderscore(rewards.join(', '))}
         </div>
+        {currentQuantity ? <div>
+          Progress: {currentQuantity} {quantity > 1 ? <span> / {quantity}</span> : null}
+        </div> : null}
       </div>}>
       {children}
     </AchievementTooltipStyle>

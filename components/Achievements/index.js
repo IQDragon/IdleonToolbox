@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { prefix } from "../../Utilities";
 import { useEffect, useState } from "react";
 import AchievementTooltip from "../Common/Tooltips/AchievementTooltip";
+import { notateNumber } from "../../parser/parserUtils";
 
 const achievementsPerWorld = 70;
 
@@ -30,6 +31,7 @@ const Achievements = ({ userData }) => {
         <div className={`${world === 0 ? 'active' : ''}`} onClick={() => handleWorldChange(0)}>World 1</div>
         <div className={`${world === 1 ? 'active' : ''}`} onClick={() => handleWorldChange(1)}>World 2</div>
         <div className={`${world === 2 ? 'active' : ''}`} onClick={() => handleWorldChange(2)}>World 3</div>
+        <div className={`${world === 3 ? 'active' : ''}`} onClick={() => handleWorldChange(3)}>World 4</div>
       </div>
       {achievements?.length && <div className={'achievements'}>
         {achievements?.map((achievement, index) => {
@@ -43,7 +45,7 @@ const Achievements = ({ userData }) => {
                 </AchievementTooltip>
               </div>
               {currentQuantity ? <div>
-                {currentQuantity} {quantity > 1 ? <span> / {quantity}</span> : null}
+                {notateNumber(currentQuantity, 'Big')} {quantity > 1 ? <span> / {notateNumber(quantity, 'Big')}</span> : null}
               </div> : null}
             </div>
         })}

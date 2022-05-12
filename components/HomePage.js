@@ -14,6 +14,64 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.22',
+      changes: [
+        {
+          title: 'Alchemy',
+          desc: [
+            'Bug fix - fixed bubble cost for kazam (yellow) cauldron',
+          ]
+        }
+      ]
+    },
+    {
+      version: '2.0.21',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Updated to patch 1.57',
+            'Fixed lab connections according to the latest changes'
+          ]
+        }
+      ]
+    },
+    {
+      version: '2.0.20',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Updated to patch 1.56'
+          ]
+        }
+      ]
+    },
+    {
+      version: '2.0.19',
+      changes: [
+        {
+          title: 'Achievements',
+          desc: [
+            'Added world 4 achievements'
+          ]
+        }
+      ]
+    },
+    {
+      version: '2.0.18',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Fixed a bug with sigils bonus',
+            'Fixed refinery cycle time',
+            'Fixed world tour calculation',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.17',
       changes: [
         {

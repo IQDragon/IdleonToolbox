@@ -4,11 +4,11 @@ export const getDistance = (x1, y1, x2, y2) => {
   return 0.9604339 * Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) + 0.397824735 * Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }
 
-export const getRange = (connectionBonus, viralRangeBonus, index, isJewel) => {
-  if ((!isJewel && index === 13) || (index === 9 && isJewel)) {
+export const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, index, isJewel) => {
+  if ((!isJewel && (index === 13 || index === 8)) || (index === 9 && isJewel)) {
     return 80;
   }
-  return 80 * (1 + (connectionBonus + viralRangeBonus) / 100);
+  return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange;
 }
 
 export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, meals, cards, gemItemsPurchased, arenaWave, waveReqs) => {
@@ -35,7 +35,7 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, m
 export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses, jewels, chips, meals, cards, petArenaBonus) => {
   const jewelMultiplier = (labBonuses.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
   const labSkillLevel = labLevel ?? 0;
-  let baseLineWidth = 50 + 2 * labSkillLevel;
+  let baseLineWidth = 50 + (2 * labSkillLevel);
   const { acquired, x, y, bonus } = jewels[5];
   if (acquired) {
     if (getDistance(x, y, playerCords.x, playerCords.y) < 150) {
@@ -43,7 +43,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     }
   }
   const bonusLineWidth = soupedTube ? 30 : 0;
-  const conductiveMotherboardBonus = chips.reduce((res, chip) => chip.index === 6 ? res + chip.baseVal : res, 0) ?? null;
+  const conductiveMotherboardBonus = chips.reduce((res, chip) => chip.index === 6 ? res + chip.baseVal : res, 0);
   const blackDiamondRhinstone = jewels.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
   const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
   const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
@@ -75,10 +75,10 @@ export const checkPlayerConnection = (playersInTubes, connectedPlayers, playerCo
 }
 
 // Check connection for jewels / bonuses
-export const checkConnection = (array, connectionRangeBonus, viralRangeBonus, playerCords, acquirable) => {
+export const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConnectionRange, playerCords, acquirable) => {
   return array?.reduce((res, object, index) => {
     let newConnection = false;
-    const range = getRange(connectionRangeBonus, viralRangeBonus, index, acquirable);
+    const range = getRange(connectionRangeBonus, viralRangeBonus, taskConnectionRange, index, acquirable);
     const distance = getDistance(playerCords.x, playerCords.y, object.x, object.y);
     const inRange = distance < range;
     if (inRange && !object.active && (!acquirable || acquirable && object.acquired)) {
